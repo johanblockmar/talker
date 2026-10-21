@@ -17,6 +17,7 @@ import logging
 import sys
 from pathlib import Path
 
+from talker import runtime
 from talker.engines import ENGINES
 from talker.moods import MOODS
 from talker.settings import VoiceSettings
@@ -149,6 +150,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING,
                         format="%(levelname)s %(message)s")
+    runtime.prepare(online=args.command == "download", verbose=args.verbose)
     try:
         return args.func(args)
     except (ValueError, RuntimeError, FileNotFoundError) as e:

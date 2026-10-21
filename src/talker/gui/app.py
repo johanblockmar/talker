@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from talker import runtime
 from talker.engines import ENGINES
 from talker.moods import MOODS
 from talker.settings import VoiceSettings
@@ -304,6 +305,7 @@ class MainWindow(QMainWindow):
 
 
 def main() -> int:
+    runtime.prepare()
     app = QApplication.instance() or QApplication(sys.argv)
     app.setApplicationName("Talker")
     win = MainWindow()

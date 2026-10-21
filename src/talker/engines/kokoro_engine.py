@@ -14,6 +14,8 @@ from talker.engines.base import Capabilities, Engine
 from talker.markup import Sentence
 from talker.moods import Mood
 
+REPO_ID = "hexgrad/Kokoro-82M"
+
 # First letter of a voice id is its language: a = US English, b = UK English.
 VOICES = [
     "af_heart", "af_bella", "af_nicole", "af_sarah", "af_sky", "af_nova",
@@ -41,7 +43,7 @@ class KokoroEngine(Engine):
     def prefetch(self) -> None:
         from huggingface_hub import snapshot_download
 
-        snapshot_download("hexgrad/Kokoro-82M")
+        snapshot_download(REPO_ID)
         for lang in sorted({v[0] for v in VOICES}):
             self._pipeline(lang)  # also fetches the English G2P language model
 
@@ -55,7 +57,7 @@ class KokoroEngine(Engine):
         if lang not in self._pipelines:
             from kokoro import KPipeline
 
-            self._pipelines[lang] = KPipeline(lang_code=lang, device=self.device)
+            self._pipelines[lang] = KPipeline(lang_code=lang, repo_id=REPO_ID, device=self.device)
         return self._pipelines[lang]
 
     @staticmethod
