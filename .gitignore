@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.egg-info/
+*.wav
+*.flac
+*.ogg
+voices/*
+!voices/README.md
+.pytest_cache/
+build/
+dist/
