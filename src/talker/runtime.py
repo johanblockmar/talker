@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 import warnings
 from pathlib import Path
 
@@ -51,7 +52,37 @@ def quiet_libraries() -> None:
         logging.getLogger(name).setLevel(logging.ERROR)
 
 
+def log_dir() -> Path:
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        return base / "Talker"
+    return Path.home() / ".local" / "state" / "talker"
+
+
+def ensure_std_streams() -> Path | None:
+    """Give a windowed app somewhere to print.
+
+    talker-gui.exe runs without a console, so sys.stdout and sys.stderr are
+    None and libraries that print or log (Kokoro's loguru, tqdm) crash.
+    Send their output to a log file instead. Returns the log path if used.
+    """
+    if sys.stdout is not None and sys.stderr is not None:
+        return None
+    path = log_dir() / "talker.log"
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        stream = open(path, "a", encoding="utf-8", buffering=1)
+    except OSError:
+        path, stream = None, open(os.devnull, "w", encoding="utf-8")
+    if sys.stdout is None:
+        sys.stdout = stream
+    if sys.stderr is None:
+        sys.stderr = stream
+    return path
+
+
 def prepare(online: bool = False, verbose: bool = False) -> None:
+    ensure_std_streams()
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
     if not verbose:
         quiet_libraries()
